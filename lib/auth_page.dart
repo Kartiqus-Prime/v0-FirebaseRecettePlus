@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_svg/flutter_svg.dart'; // Import flutter_svg
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
@@ -122,8 +123,8 @@ class _AuthPageState extends State<AuthPage> {
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: _signInWithGoogle,
-              icon: Image.asset(
-                'assets/google_logo.png', // You'll need to add a Google logo asset
+              icon: SvgPicture.asset( // Use SvgPicture.asset for SVG files
+                'assets/images/google-logo.svg', // Corrected path and file name
                 height: 24.0,
                 width: 24.0,
               ),
