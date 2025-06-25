@@ -8,17 +8,20 @@ class GoogleSignInService {
       'email',
       'profile',
     ],
+    // Forcer la sélection de compte
+    forceCodeForRefreshToken: true,
   );
   
   static final FirebaseAuth _auth = FirebaseAuth.instance;
 
   static Future<UserCredential?> signInWithGoogle() async {
     try {
-      // Déconnecter d'abord pour forcer la sélection de compte
+      // Déconnecter complètement d'abord
       await _googleSignIn.signOut();
+      await _auth.signOut();
       
       if (kDebugMode) {
-        print('Tentative de connexion Google...');
+        print('🚀 Démarrage de la connexion Google...');
       }
 
       // Déclencher le flux d'authentification
@@ -26,21 +29,28 @@ class GoogleSignInService {
       
       if (googleUser == null) {
         if (kDebugMode) {
-          print('Connexion Google annulée par l\'utilisateur');
+          print('❌ Connexion Google annulée par l\'utilisateur');
         }
         return null;
       }
 
       if (kDebugMode) {
-        print('Utilisateur Google sélectionné: ${googleUser.email}');
+        print('✅ Utilisateur Google sélectionné: ${googleUser.email}');
+        print('📧 Display Name: ${googleUser.displayName}');
+        print('🆔 ID: ${googleUser.id}');
       }
 
-      // Obtenir les détails d'authentification de la demande
+      // Obtenir les détails d'authentification
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
       if (kDebugMode) {
-        print('Token d\'accès obtenu: ${googleAuth.accessToken != null}');
-        print('ID Token obtenu: ${googleAuth.idToken != null}');
+        print('🔑 Access Token: ${googleAuth.accessToken != null ? "✅" : "❌"}');
+        print('🎫 ID Token: ${googleAuth.idToken != null ? "✅" : "❌"}');
+      }
+
+      // Vérifier que nous avons les tokens nécessaires
+      if (googleAuth.accessToken == null || googleAuth.idToken == null) {
+        throw Exception('Tokens Google manquants');
       }
 
       // Créer un nouveau credential
@@ -50,25 +60,28 @@ class GoogleSignInService {
       );
 
       if (kDebugMode) {
-        print('Credential créé, connexion à Firebase...');
+        print('🔐 Credential créé, connexion à Firebase...');
       }
 
-      // Une fois connecté, retourner le UserCredential
+      // Connexion à Firebase
       final UserCredential userCredential = await _auth.signInWithCredential(credential);
       
       if (kDebugMode) {
-        print('Connexion Firebase réussie: ${userCredential.user?.email}');
+        print('🎉 Connexion Firebase réussie!');
+        print('👤 User: ${userCredential.user?.email}');
+        print('📱 Provider: ${userCredential.user?.providerData.first.providerId}');
       }
 
       return userCredential;
     } on FirebaseAuthException catch (e) {
       if (kDebugMode) {
-        print('Erreur Firebase Auth: ${e.code} - ${e.message}');
+        print('🔥 Erreur Firebase Auth: ${e.code} - ${e.message}');
       }
       rethrow;
     } catch (e) {
       if (kDebugMode) {
-        print('Erreur Google Sign-In: $e');
+        print('💥 Erreur Google Sign-In: $e');
+        print('📍 Stack trace: ${StackTrace.current}');
       }
       rethrow;
     }
@@ -80,10 +93,17 @@ class GoogleSignInService {
         _auth.signOut(),
         _googleSignIn.signOut(),
       ]);
+      if (kDebugMode) {
+        print('👋 Déconnexion réussie');
+      }
     } catch (e) {
       if (kDebugMode) {
-        print('Erreur lors de la déconnexion: $e');
+        print('❌ Erreur lors de la déconnexion: $e');
       }
     }
+  }
+
+  static Future<bool> isSignedIn() async {
+    return await _googleSignIn.isSignedIn();
   }
 }

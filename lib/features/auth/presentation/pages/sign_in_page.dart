@@ -71,14 +71,13 @@ class _SignInPageState extends State<SignInPage> {
       final UserCredential? userCredential = await GoogleSignInService.signInWithGoogle();
       
       if (userCredential == null) {
-        // L'utilisateur a annulé la connexion
         setState(() {
           _isGoogleLoading = false;
         });
         return;
       }
 
-      // La redirection sera gérée automatiquement par le StreamBuilder dans main.dart
+      // Succès - la redirection sera gérée par le StreamBuilder
       
     } on FirebaseAuthException catch (e) {
       setState(() {
@@ -86,8 +85,38 @@ class _SignInPageState extends State<SignInPage> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Erreur lors de la connexion avec Google. Vérifiez votre configuration.';
+        _errorMessage = 'Erreur de connexion Google: ${e.toString()}';
       });
+      
+      // Afficher une boîte de dialogue avec plus de détails pour le debug
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Erreur de configuration'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Vérifiez les points suivants:'),
+                const SizedBox(height: 8),
+                const Text('• SHA-1 configuré dans Firebase'),
+                const Text('• Package name correct'),
+                const Text('• Google Sign-In activé'),
+                const Text('• google-services.json à jour'),
+                const SizedBox(height: 16),
+                Text('Erreur technique: ${e.toString()}'),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
     } finally {
       setState(() {
         _isGoogleLoading = false;
@@ -119,7 +148,7 @@ class _SignInPageState extends State<SignInPage> {
       case 'invalid-credential':
         return 'Les informations d\'identification sont invalides.';
       case 'operation-not-allowed':
-        return 'La connexion Google n\'est pas activée.';
+        return 'La connexion Google n\'est pas activée dans Firebase.';
       case 'user-disabled':
         return 'Ce compte a été désactivé.';
       case 'user-not-found':
@@ -207,7 +236,7 @@ class _SignInPageState extends State<SignInPage> {
                 // Connexion Google en premier
                 SocialButton(
                   text: AppStrings.signInWithGoogle,
-                  iconPath: 'https://blobs.vusercontent.net/blob/google-logo-ePwwr2o9C1PaCLZNuLkE9VgHSZA3ah.svg',
+                  iconPath: 'assets/images/google-logo.svg',
                   onPressed: _signInWithGoogle,
                   isLoading: _isGoogleLoading,
                 ),
