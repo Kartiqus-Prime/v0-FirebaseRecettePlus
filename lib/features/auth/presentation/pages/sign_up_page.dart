@@ -79,6 +79,7 @@ class _SignUpPageState extends State<SignUpPage> {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
+        // L'utilisateur a annulé la connexion
         setState(() {
           _isGoogleLoading = false;
         });
@@ -92,13 +93,15 @@ class _SignUpPageState extends State<SignUpPage> {
       );
 
       await _auth.signInWithCredential(credential);
+      // La redirection sera gérée automatiquement par le StreamBuilder dans main.dart
+      
     } on FirebaseAuthException catch (e) {
       setState(() {
         _errorMessage = _getErrorMessage(e.code);
       });
     } catch (e) {
       setState(() {
-        _errorMessage = AppStrings.unknownError;
+        _errorMessage = 'Erreur lors de l\'inscription avec Google: ${e.toString()}';
       });
     } finally {
       setState(() {

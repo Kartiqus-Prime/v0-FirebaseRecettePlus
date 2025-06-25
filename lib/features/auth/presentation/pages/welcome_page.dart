@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../shared/widgets/custom_button.dart';
@@ -22,23 +23,23 @@ class WelcomePage extends StatelessWidget {
               Column(
                 children: [
                   Container(
-                    width: 120,
-                    height: 120,
+                    width: 200,
+                    height: 200,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withOpacity(0.2),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
+                          color: AppColors.primary.withOpacity(0.1),
+                          blurRadius: 30,
+                          offset: const Offset(0, 15),
                         ),
                       ],
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(24),
-                      child: Image.network(
-                        'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo-e6dKsJSWOGo8cJEfHuxiUdTsJzLTPt.png',
-                        fit: BoxFit.cover,
+                      child: SvgPicture.network(
+                        'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/food-illustration-Y2WO0qmamIXc2QQW9t9zBbVnWPzVJy.svg',
+                        fit: BoxFit.contain,
                       ),
                     ),
                   ),
