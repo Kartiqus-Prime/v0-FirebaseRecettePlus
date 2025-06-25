@@ -33,7 +33,19 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        debug {
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+            storeFile file('../debug.keystore')
+            storePassword 'android'
+        }
+    }
+
     buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
@@ -44,4 +56,8 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
 }

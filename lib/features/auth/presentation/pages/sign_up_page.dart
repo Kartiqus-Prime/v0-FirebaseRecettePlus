@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/services/google_sign_in_service.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/social_button.dart';
@@ -23,7 +23,6 @@ class _SignUpPageState extends State<SignUpPage> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   bool _isLoading = false;
   bool _isGoogleLoading = false;
@@ -77,8 +76,9 @@ class _SignUpPageState extends State<SignUpPage> {
     });
 
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
+      final UserCredential? userCredential = await GoogleSignInService.signInWithGoogle();
+      
+      if (userCredential == null) {
         // L'utilisateur a annulé la connexion
         setState(() {
           _isGoogleLoading = false;
@@ -86,22 +86,15 @@ class _SignUpPageState extends State<SignUpPage> {
         return;
       }
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      await _auth.signInWithCredential(credential);
       // La redirection sera gérée automatiquement par le StreamBuilder dans main.dart
       
     } on FirebaseAuthException catch (e) {
       setState(() {
-        _errorMessage = _getErrorMessage(e.code);
+        _errorMessage = _getFirebaseErrorMessage(e.code);
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Erreur lors de l\'inscription avec Google: ${e.toString()}';
+        _errorMessage = 'Erreur lors de l\'inscription avec Google. Vérifiez votre configuration.';
       });
     } finally {
       setState(() {
@@ -122,6 +115,21 @@ class _SignUpPageState extends State<SignUpPage> {
         return 'Le mot de passe est trop faible.';
       default:
         return AppStrings.signUpError;
+    }
+  }
+
+  String _getFirebaseErrorMessage(String code) {
+    switch (code) {
+      case 'account-exists-with-different-credential':
+        return 'Un compte existe déjà avec cette adresse e-mail mais avec un autre fournisseur.';
+      case 'invalid-credential':
+        return 'Les informations d\'identification sont invalides.';
+      case 'operation-not-allowed':
+        return 'La connexion Google n\'est pas activée.';
+      case 'user-disabled':
+        return 'Ce compte a été désactivé.';
+      default:
+        return 'Erreur lors de l\'inscription avec Google.';
     }
   }
 
@@ -198,6 +206,34 @@ class _SignUpPageState extends State<SignUpPage> {
                   const SizedBox(height: 24),
                 ],
 
+                // Connexion Google en premier
+                SocialButton(
+                  text: AppStrings.signInWithGoogle,
+                  iconPath: 'https://blobs.vusercontent.net/blob/google-logo-ePwwr2o9C1PaCLZNuLkE9VgHSZA3ah.svg',
+                  onPressed: _signUpWithGoogle,
+                  isLoading: _isGoogleLoading,
+                ),
+                const SizedBox(height: 24),
+
+                // Séparateur
+                Row(
+                  children: [
+                    const Expanded(child: Divider(color: AppColors.border)),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        AppStrings.or,
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    const Expanded(child: Divider(color: AppColors.border)),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
                 // Champs de saisie
                 CustomTextField(
                   label: AppStrings.fullName,
@@ -239,34 +275,6 @@ class _SignUpPageState extends State<SignUpPage> {
                   text: AppStrings.createAccount,
                   onPressed: _signUpWithEmailAndPassword,
                   isLoading: _isLoading,
-                ),
-                const SizedBox(height: 24),
-
-                // Séparateur
-                Row(
-                  children: [
-                    const Expanded(child: Divider(color: AppColors.border)),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        AppStrings.or,
-                        style: TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                    const Expanded(child: Divider(color: AppColors.border)),
-                  ],
-                ),
-                const SizedBox(height: 24),
-
-                // Connexion Google
-                SocialButton(
-                  text: AppStrings.signInWithGoogle,
-                  iconPath: 'https://blobs.vusercontent.net/blob/google-logo-ePwwr2o9C1PaCLZNuLkE9VgHSZA3ah.svg',
-                  onPressed: _signUpWithGoogle,
-                  isLoading: _isGoogleLoading,
                 ),
                 const SizedBox(height: 32),
 
