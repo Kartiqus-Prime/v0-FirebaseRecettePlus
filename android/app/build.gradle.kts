@@ -35,16 +35,16 @@ android {
 
     signingConfigs {
         debug {
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
-            storeFile file('../debug.keystore')
-            storePassword 'android'
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+            storeFile = file("../debug.keystore")
+            storePassword = "android"
         }
     }
 
     buildTypes {
         debug {
-            signingConfig signingConfigs.debug
+            signingConfig = signingConfigs.getByName("debug")
         }
         release {
             // TODO: Add your own signing config for the release build.
@@ -59,5 +59,5 @@ flutter {
 }
 
 dependencies {
-    implementation 'com.google.android.gms:play-services-auth:20.7.0'
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
 }
