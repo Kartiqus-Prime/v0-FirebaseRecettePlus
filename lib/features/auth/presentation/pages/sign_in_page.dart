@@ -27,6 +27,13 @@ class _SignInPageState extends State<SignInPage> {
   String? _errorMessage;
 
   @override
+  void initState() {
+    super.initState();
+    // Diagnostic au démarrage
+    GoogleSignInService.diagnoseConfiguration();
+  }
+
+  @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
@@ -84,44 +91,79 @@ class _SignInPageState extends State<SignInPage> {
         _errorMessage = _getFirebaseErrorMessage(e.code);
       });
     } catch (e) {
+      String errorMsg = 'Erreur de connexion Google';
+      
+      if (e.toString().contains('ApiException: 10')) {
+        errorMsg = 'Configuration Google Sign-In incorrecte.\nVérifiez le SHA-1 dans Firebase Console.';
+      }
+      
       setState(() {
-        _errorMessage = 'Erreur de connexion Google: ${e.toString()}';
+        _errorMessage = errorMsg;
       });
       
-      // Afficher une boîte de dialogue avec plus de détails pour le debug
-      if (mounted) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Erreur de configuration'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Vérifiez les points suivants:'),
-                const SizedBox(height: 8),
-                const Text('• SHA-1 configuré dans Firebase'),
-                const Text('• Package name correct'),
-                const Text('• Google Sign-In activé'),
-                const Text('• google-services.json à jour'),
-                const SizedBox(height: 16),
-                Text('Erreur technique: ${e.toString()}'),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        );
+      // Afficher une boîte de dialogue avec les instructions
+      if (mounted && e.toString().contains('ApiException: 10')) {
+        _showConfigurationDialog();
       }
     } finally {
       setState(() {
         _isGoogleLoading = false;
       });
     }
+  }
+
+  void _showConfigurationDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.settings, color: AppColors.error),
+            SizedBox(width: 8),
+            Text('Configuration requise'),
+          ],
+        ),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Pour utiliser Google Sign-In, suivez ces étapes:',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            SizedBox(height: 16),
+            Text('1. Générez votre SHA-1:'),
+            Text(
+              '   cd android && ./gradlew signingReport',
+              style: TextStyle(
+                fontFamily: 'monospace',
+                backgroundColor: Color(0xFFF5F5F5),
+              ),
+            ),
+            SizedBox(height: 8),
+            Text('2. Ajoutez le SHA-1 dans Firebase Console'),
+            SizedBox(height: 8),
+            Text('3. Téléchargez le nouveau google-services.json'),
+            SizedBox(height: 8),
+            Text('4. Redémarrez l\'application'),
+            SizedBox(height: 16),
+            Text(
+              'Package name: com.recetteplus.app',
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: AppColors.primary,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Compris'),
+          ),
+        ],
+      ),
+    );
   }
 
   String _getErrorMessage(String code) {
@@ -215,6 +257,7 @@ class _SignInPageState extends State<SignInPage> {
                       border: Border.all(color: AppColors.error.withOpacity(0.3)),
                     ),
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Icon(Icons.error_outline, color: AppColors.error, size: 20),
                         const SizedBox(width: 12),

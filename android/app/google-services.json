@@ -15,15 +15,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "361640124056-gptdde208ct014qqihbh3i6sqnfd6i5f.apps.googleusercontent.com",
+          "client_id": "361640124056-VOTRE_NOUVEAU_CLIENT_ID.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.recetteplus.app",
-            "certificate_hash": "2e61c6ec9d7cdabf2f5214ac185186edd35fa633"
+            "certificate_hash": "VOTRE_SHA1_ICI"
           }
         },
         {
-          "client_id": "361640124056-jh0j1mncf9pqsc5lirqrpjku7ka42ktn.apps.googleusercontent.com",
+          "client_id": "361640124056-e196o9u9pe0rdg35uj4054k4rjplmfec.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -38,13 +38,6 @@
             {
               "client_id": "361640124056-e196o9u9pe0rdg35uj4054k4rjplmfec.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "361640124056-dr8t7qea2hs2olld78lkpu0lgeulura9.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.recetteplus.app"
-              }
             }
           ]
         }

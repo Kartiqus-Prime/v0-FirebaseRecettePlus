@@ -1,10 +1,7 @@
 plugins {
     id("com.android.application")
-    // START: FlutterFire Configuration
     id("com.google.gms.google-services")
-    // END: FlutterFire Configuration
     id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -28,6 +25,9 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
+        // Ajout pour Google Sign-In
+        multiDexEnabled = true
     }
 
     signingConfigs {
@@ -42,9 +42,12 @@ android {
     buildTypes {
         debug {
             signingConfig = signingConfigs.getByName("debug")
+            isDebuggable = true
         }
         release {
             signingConfig = signingConfigs.getByName("debug")
+            isMinifyEnabled = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 }
@@ -56,4 +59,5 @@ flutter {
 dependencies {
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     implementation("com.google.android.gms:play-services-base:18.2.0")
+    implementation("androidx.multidex:multidex:2.0.1")
 }
