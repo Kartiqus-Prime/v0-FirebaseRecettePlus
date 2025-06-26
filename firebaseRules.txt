@@ -1,0 +1,169 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && getUserData().role == 'admin';
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function hasValidUserData() {
+      return request.resource.data.keys().hasAll(['displayName', 'email', 'role']) &&
+             request.resource.data.displayName is string &&
+             request.resource.data.email is string &&
+             request.resource.data.role in ['user', 'admin'];
+    }
+    
+    function hasValidRecipeData() {
+      return request.resource.data.keys().hasAll(['title', 'description', 'category', 'createdBy']) &&
+             request.resource.data.title is string &&
+             request.resource.data.description is string &&
+             request.resource.data.category is string &&
+             request.resource.data.createdBy is string;
+    }
+    
+    function hasValidProductData() {
+      return request.resource.data.keys().hasAll(['name', 'price', 'category', 'inStock']) &&
+             request.resource.data.name is string &&
+             request.resource.data.price is number &&
+             request.resource.data.category is string &&
+             request.resource.data.inStock is bool;
+    }
+    
+    function hasValidVideoData() {
+      return request.resource.data.keys().hasAll(['title', 'url', 'category', 'createdBy']) &&
+             request.resource.data.title is string &&
+             request.resource.data.url is string &&
+             request.resource.data.category is string &&
+             request.resource.data.createdBy is string;
+    }
+
+    // Users collection
+    match /users/{userId} {
+      // Users can read their own profile, admins can read all
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Users can create their own profile during signup
+      allow create: if isOwner(userId) && hasValidUserData();
+      
+      // Users can update their own profile (except role), admins can update any profile
+      allow update: if (isOwner(userId) && 
+                       hasValidUserData() && 
+                       request.resource.data.role == resource.data.role) || 
+                       (isAdmin() && hasValidUserData());
+      
+      // Only admins can delete users (except other admins)
+      allow delete: if isAdmin() && resource.data.role != 'admin';
+    }
+
+    // Recipes collection
+    match /recipes/{recipeId} {
+      // Anyone can read recipes
+      allow read: if true;
+      
+      // Authenticated users can create recipes
+      allow create: if isAuthenticated() && 
+                      hasValidRecipeData() && 
+                      request.resource.data.createdBy == request.auth.uid;
+      
+      // Recipe owners and admins can update recipes
+      allow update: if (isAuthenticated() && resource.data.createdBy == request.auth.uid && hasValidRecipeData()) || 
+                      (isAdmin() && hasValidRecipeData());
+      
+      // Recipe owners and admins can delete recipes
+      allow delete: if (isAuthenticated() && resource.data.createdBy == request.auth.uid) || isAdmin();
+    }
+
+    // Products collection
+    match /products/{productId} {
+      // Anyone can read products
+      allow read: if true;
+      
+      // Only admins can create, update, and delete products
+      allow create: if isAdmin() && hasValidProductData();
+      allow update: if isAdmin() && hasValidProductData();
+      allow delete: if isAdmin();
+    }
+
+    // Videos collection
+    match /videos/{videoId} {
+      // Anyone can read videos
+      allow read: if true;
+      
+      // Authenticated users can create videos
+      allow create: if isAuthenticated() && 
+                      hasValidVideoData() && 
+                      request.resource.data.createdBy == request.auth.uid;
+      
+      // Video owners and admins can update videos
+      allow update: if (isAuthenticated() && resource.data.createdBy == request.auth.uid && hasValidVideoData()) || 
+                      (isAdmin() && hasValidVideoData());
+      
+      // Video owners and admins can delete videos
+      allow delete: if (isAuthenticated() && resource.data.createdBy == request.auth.uid) || isAdmin();
+    }
+
+    // Cart items collection
+    match /cartItems/{cartItemId} {
+      // Users can only read their own cart items
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      
+      // Users can create cart items for themselves
+      allow create: if isAuthenticated() && 
+                      request.resource.data.userId == request.auth.uid &&
+                      request.resource.data.keys().hasAll(['userId', 'productId', 'quantity']) &&
+                      request.resource.data.quantity is number &&
+                      request.resource.data.quantity > 0;
+      
+      // Users can update their own cart items
+      allow update: if isAuthenticated() && 
+                      resource.data.userId == request.auth.uid &&
+                      request.resource.data.userId == request.auth.uid &&
+                      request.resource.data.quantity is number &&
+                      request.resource.data.quantity > 0;
+      
+      // Users can delete their own cart items
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // Favorites collection
+    match /favorites/{favoriteId} {
+      // Users can only read their own favorites
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+
+      // Users can create their own favorites
+      allow create: if isAuthenticated() && 
+                      request.resource.data.userId == request.auth.uid &&
+                      request.resource.data.keys().hasAll(['userId', 'recipeId']); // Assuming recipeId for favorites
+
+      // Users can delete their own favorites
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // Orders collection
+    match /orders/{orderId} {
+      // Users can only read their own orders
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+
+      // Users can create their own orders
+      allow create: if isAuthenticated() && 
+                      request.resource.data.userId == request.auth.uid; // Add more specific validation for order data if needed
+
+      // Admins can read all orders
+      allow read: if isAdmin();
+    }
+  }
+}
