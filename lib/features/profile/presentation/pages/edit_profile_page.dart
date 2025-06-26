@@ -53,6 +53,24 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
   }
 
+  // Fonction pour formater le numéro de téléphone
+  String _formatPhoneNumber(String phone) {
+    // Supprimer tous les espaces et caractères spéciaux
+    String cleaned = phone.replaceAll(RegExp(r'[^\d+]'), '');
+    
+    // Si le numéro ne commence pas par +, ajouter le code pays par défaut
+    if (!cleaned.startsWith('+')) {
+      // Supposons que c'est un numéro français si pas de code pays
+      if (cleaned.startsWith('0')) {
+        cleaned = '+33${cleaned.substring(1)}';
+      } else {
+        cleaned = '+33$cleaned';
+      }
+    }
+    
+    return cleaned;
+  }
+
   Future<void> _verifyPhoneNumber() async {
     if (_phoneController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -61,23 +79,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
       return;
     }
 
-    // Pour les tests, utiliser un numéro de test Firebase
-    String phoneNumber = _phoneController.text;
-
-    // Si c'est un numéro de test, simuler la vérification
-    if (phoneNumber == '+1 650-555-3434') {
-      setState(() {
-        _phoneVerified = true;
-        _currentPhoneNumber = phoneNumber;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Numéro de test vérifié automatiquement!')),
-      );
-      return;
-    }
+    // Formater le numéro de téléphone
+    String formattedPhone = _formatPhoneNumber(_phoneController.text);
+    
+    print('🔍 Tentative de vérification du numéro: $formattedPhone');
 
     // Si le numéro a changé, marquer comme non vérifié
-    if (_phoneController.text != _currentPhoneNumber) {
+    if (formattedPhone != _currentPhoneNumber) {
       setState(() {
         _phoneVerified = false;
       });
@@ -89,20 +97,39 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
     try {
       await FirebaseAuth.instance.verifyPhoneNumber(
-        phoneNumber: _phoneController.text,
+        phoneNumber: formattedPhone,
+        timeout: const Duration(seconds: 60),
         verificationCompleted: (PhoneAuthCredential credential) async {
-          // Auto-verification completed
+          print('✅ Vérification automatique réussie');
           await _linkPhoneCredential(credential);
         },
         verificationFailed: (FirebaseAuthException e) {
+          print('❌ Échec de la vérification: ${e.code} - ${e.message}');
           setState(() {
             _isVerifyingPhone = false;
           });
+          
+          String errorMessage = 'Erreur de vérification';
+          switch (e.code) {
+            case 'invalid-phone-number':
+              errorMessage = 'Numéro de téléphone invalide. Utilisez le format international (+33...)';
+              break;
+            case 'too-many-requests':
+              errorMessage = 'Trop de tentatives. Réessayez plus tard.';
+              break;
+            case 'quota-exceeded':
+              errorMessage = 'Quota SMS dépassé. Réessayez demain.';
+              break;
+            default:
+              errorMessage = 'Erreur: ${e.message}';
+          }
+          
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erreur de vérification: ${e.message}')),
+            SnackBar(content: Text(errorMessage)),
           );
         },
         codeSent: (String verificationId, int? resendToken) {
+          print('📱 Code SMS envoyé avec succès');
           setState(() {
             _verificationId = verificationId;
             _isVerifyingPhone = false;
@@ -110,10 +137,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
           _showVerificationDialog();
         },
         codeAutoRetrievalTimeout: (String verificationId) {
+          print('⏰ Timeout de récupération automatique');
           _verificationId = verificationId;
         },
       );
     } catch (e) {
+      print('💥 Erreur générale: $e');
       setState(() {
         _isVerifyingPhone = false;
       });
@@ -141,9 +170,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
               decoration: const InputDecoration(
                 labelText: 'Code de vérification',
                 border: OutlineInputBorder(),
+                hintText: '123456',
               ),
               keyboardType: TextInputType.number,
               maxLength: 6,
+              autofocus: true,
             ),
           ],
         ),
@@ -175,6 +206,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       await _linkPhoneCredential(credential);
       Navigator.of(context).pop(); // Close dialog
     } catch (e) {
+      print('❌ Code invalide: $e');
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Code invalide: $e')));
@@ -188,7 +220,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         await user.linkWithCredential(credential);
         setState(() {
           _phoneVerified = true;
-          _currentPhoneNumber = _phoneController.text;
+          _currentPhoneNumber = _formatPhoneNumber(_phoneController.text);
         });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -197,6 +229,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         );
       }
     } catch (e) {
+      print('❌ Erreur lors de la liaison: $e');
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Erreur lors de la liaison: $e')));
@@ -220,7 +253,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         await FirestoreService.updateUserProfile(
           uid: user.uid,
           displayName: _displayNameController.text,
-          phoneNumber: _phoneVerified ? _phoneController.text : null,
+          phoneNumber: _phoneVerified ? _formatPhoneNumber(_phoneController.text) : null,
         );
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -312,7 +345,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
               const SizedBox(height: 20),
 
-              // Numéro de téléphone
+              // Numéro de téléphone avec aide
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -324,7 +357,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           label: 'Numéro de téléphone',
                           prefixIcon: Icon(Icons.phone),
                           keyboardType: TextInputType.phone,
-                          // Toujours permettre la modification
                           enabled: true,
                         ),
                       ),
@@ -353,6 +385,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               ),
                       ),
                     ],
+                  ),
+                  
+                  // Aide pour le format
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      'Format: +33123456789 (avec indicatif pays)',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                    ),
                   ),
                   
                   if (_phoneVerified && _currentPhoneNumber != null)
