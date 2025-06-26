@@ -1,26 +1,53 @@
-name: myapp
-description: "A new Flutter project."
+name: recetteplus
+description: "Application mobile de recettes culinaires avec Firebase"
 publish_to: 'none'
 
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.4.4 <4.0.0'
+  sdk: '>=3.2.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.6
-  firebase_core: ^3.6.0
-  firebase_auth: ^5.3.1
-  google_sign_in: ^6.2.1
-  cloud_firestore: ^5.4.4
-  intl: ^0.19.0
+  
+  # Firebase
+  firebase_core: ^2.24.2
+  firebase_auth: ^4.15.3
+  cloud_firestore: ^4.13.6
+  firebase_storage: ^11.6.0
+  
+  # Authentification
+  google_sign_in: ^6.1.6
+  
+  # Interface utilisateur
+  flutter_svg: ^2.0.9
+  cached_network_image: ^3.3.0
+  image_picker: ^1.0.4
+  
+  # Navigation
+  go_router: ^12.1.3
+  
+  # État de l'application
+  provider: ^6.1.1
+  
+  # Utilitaires
+  http: ^1.1.0
+  intl: ^0.18.1
+  shared_preferences: ^2.2.2
+  
+  # Vidéo
+  video_player: ^2.8.1
+  
+  # Formats de données
+  json_annotation: ^4.8.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  build_runner: ^2.4.7
+  json_serializable: ^6.7.1
 
 flutter:
   uses-material-design: true
@@ -30,7 +57,7 @@ flutter:
     - assets/fonts/
   
   fonts:
-    - family: SFProDisplay
+    - family: SF Pro Display
       fonts:
         - asset: assets/fonts/SFProDisplay-Regular.ttf
           weight: 400

@@ -30,23 +30,13 @@ android {
         multiDexEnabled = true
     }
 
-    signingConfigs {
-        getByName("debug") {
-            keyAlias = "androiddebugkey"
-            keyPassword = "android"
-            storeFile = file("debug.keystore")
-            storePassword = "android"
-        }
-    }
-
     buildTypes {
         debug {
-            signingConfig = signingConfigs.getByName("debug")
             isDebuggable = true
         }
         release {
             signingConfig = signingConfigs.getByName("debug")
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }

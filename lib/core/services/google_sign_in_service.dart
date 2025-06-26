@@ -4,18 +4,12 @@ import 'package:flutter/foundation.dart';
 
 class GoogleSignInService {
   static final GoogleSignIn _googleSignIn = GoogleSignIn(
-<<<<<<< HEAD
     scopes: [
       'email',
       'profile',
     ],
     // Configuration spécifique pour Android
-    serverClientId: kDebugMode 
-=======
-    scopes: ['email', 'profile'],
-    // Configuration spécifique pour Android
     serverClientId: kDebugMode
->>>>>>> d4929db (maj)
         ? null // Laisser null en debug pour utiliser la config automatique
         : "361640124056-e196o9u9pe0rdg35uj4054k4rjplmfec.apps.googleusercontent.com",
   );
@@ -25,26 +19,27 @@ class GoogleSignInService {
   static Future<UserCredential?> signInWithGoogle() async {
     try {
       // Vérifier la disponibilité des Google Play Services
-<<<<<<< HEAD
       if (kDebugMode) {
         print('🔍 Vérification des Google Play Services...');
       }
-      
+
       // Déconnecter complètement d'abord
       await _googleSignIn.signOut();
       await _auth.signOut();
-      
+
       if (kDebugMode) {
         print('🚀 Démarrage de la connexion Google...');
         print('📱 Package: com.recetteplus.app');
       }
 
       // Déclencher le flux d'authentification avec gestion d'erreur spécifique
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn().catchError((error) {
+      final GoogleSignInAccount? googleUser =
+          await _googleSignIn.signIn().catchError((error) {
         if (kDebugMode) {
           print('❌ Erreur lors de signIn: $error');
           if (error.toString().contains('ApiException: 10')) {
-            print('🔧 Erreur ApiException 10 - Problème de configuration SHA-1');
+            print(
+                '🔧 Erreur ApiException 10 - Problème de configuration SHA-1');
             print('📋 Vérifiez:');
             print('   1. SHA-1 ajouté dans Firebase Console');
             print('   2. Package name: com.recetteplus.app');
@@ -54,42 +49,7 @@ class GoogleSignInService {
         }
         throw error;
       });
-      
-=======
-      if (kDebugMode) {
-        print('🔍 Vérification des Google Play Services...');
-      }
 
-      // Déconnecter complètement d'abord
-      await _googleSignIn.signOut();
-      await _auth.signOut();
-
-      if (kDebugMode) {
-        print('🚀 Démarrage de la connexion Google...');
-        print('📱 Package: com.recetteplus.app');
-      }
-
-      // Déclencher le flux d'authentification avec gestion d'erreur spécifique
-      final GoogleSignInAccount? googleUser = await _googleSignIn
-          .signIn()
-          .catchError((error) {
-            if (kDebugMode) {
-              print('❌ Erreur lors de signIn: $error');
-              if (error.toString().contains('ApiException: 10')) {
-                print(
-                  '🔧 Erreur ApiException 10 - Problème de configuration SHA-1',
-                );
-                print('📋 Vérifiez:');
-                print('   1. SHA-1 ajouté dans Firebase Console');
-                print('   2. Package name: com.recetteplus.app');
-                print('   3. google-services.json à jour');
-                print('   4. Google Sign-In activé dans Firebase Auth');
-              }
-            }
-            throw error;
-          });
-
->>>>>>> d4929db (maj)
       if (googleUser == null) {
         if (kDebugMode) {
           print('❌ Connexion Google annulée par l\'utilisateur');
@@ -104,12 +64,8 @@ class GoogleSignInService {
       }
 
       // Obtenir les détails d'authentification
-<<<<<<< HEAD
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-=======
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
->>>>>>> d4929db (maj)
 
       if (kDebugMode) {
         print('🔑 Access Token: ${googleAuth.accessToken != null ? "✅" : "❌"}');
@@ -132,25 +88,14 @@ class GoogleSignInService {
       }
 
       // Connexion à Firebase
-<<<<<<< HEAD
-      final UserCredential userCredential = await _auth.signInWithCredential(credential);
-      
-      if (kDebugMode) {
-        print('🎉 Connexion Firebase réussie!');
-        print('👤 User: ${userCredential.user?.email}');
-        print('📱 Provider: ${userCredential.user?.providerData.first.providerId}');
-=======
-      final UserCredential userCredential = await _auth.signInWithCredential(
-        credential,
-      );
+      final UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
 
       if (kDebugMode) {
         print('🎉 Connexion Firebase réussie!');
         print('👤 User: ${userCredential.user?.email}');
         print(
-          '📱 Provider: ${userCredential.user?.providerData.first.providerId}',
-        );
->>>>>>> d4929db (maj)
+            '📱 Provider: ${userCredential.user?.providerData.first.providerId}');
       }
 
       return userCredential;
@@ -163,11 +108,7 @@ class GoogleSignInService {
       if (kDebugMode) {
         print('💥 Erreur Google Sign-In: $e');
         print('📍 Stack Trace: ${StackTrace.current}');
-<<<<<<< HEAD
-        
-=======
 
->>>>>>> d4929db (maj)
         // Diagnostic spécifique pour ApiException 10
         if (e.toString().contains('ApiException: 10')) {
           print('');
@@ -189,14 +130,10 @@ class GoogleSignInService {
 
   static Future<void> signOut() async {
     try {
-<<<<<<< HEAD
       await Future.wait([
         _auth.signOut(),
         _googleSignIn.signOut(),
       ]);
-=======
-      await Future.wait([_auth.signOut(), _googleSignIn.signOut()]);
->>>>>>> d4929db (maj)
       if (kDebugMode) {
         print('👋 Déconnexion réussie');
       }
@@ -216,19 +153,11 @@ class GoogleSignInService {
     if (kDebugMode) {
       print('🔍 DIAGNOSTIC GOOGLE SIGN-IN:');
       print('📱 Package: com.recetteplus.app');
-<<<<<<< HEAD
-      
-      try {
-        final isSignedIn = await _googleSignIn.isSignedIn();
-        print('🔐 Déjà connecté: $isSignedIn');
-        
-=======
 
       try {
         final isSignedIn = await _googleSignIn.isSignedIn();
         print('🔐 Déjà connecté: $isSignedIn');
 
->>>>>>> d4929db (maj)
         if (isSignedIn) {
           final currentUser = _googleSignIn.currentUser;
           print('👤 Utilisateur actuel: ${currentUser?.email}');

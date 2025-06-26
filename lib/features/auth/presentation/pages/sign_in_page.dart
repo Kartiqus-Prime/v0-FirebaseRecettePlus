@@ -86,27 +86,12 @@ class _SignInPageState extends State<SignInPage> {
       }
 
       // Succès - la redirection sera gérée par le StreamBuilder
-<<<<<<< HEAD
-      
-=======
->>>>>>> d4929db (maj)
     } on FirebaseAuthException catch (e) {
       setState(() {
         _errorMessage = _getFirebaseErrorMessage(e.code);
       });
     } catch (e) {
       String errorMsg = 'Erreur de connexion Google';
-<<<<<<< HEAD
-      
-      if (e.toString().contains('ApiException: 10')) {
-        errorMsg = 'Configuration Google Sign-In incorrecte.\nVérifiez le SHA-1 dans Firebase Console.';
-      }
-      
-      setState(() {
-        _errorMessage = errorMsg;
-      });
-      
-=======
 
       if (e.toString().contains('ApiException: 10')) {
         errorMsg =
@@ -117,7 +102,6 @@ class _SignInPageState extends State<SignInPage> {
         _errorMessage = errorMsg;
       });
 
->>>>>>> d4929db (maj)
       // Afficher une boîte de dialogue avec les instructions
       if (mounted && e.toString().contains('ApiException: 10')) {
         _showConfigurationDialog();
