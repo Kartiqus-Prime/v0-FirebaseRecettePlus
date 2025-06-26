@@ -36,7 +36,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
       _displayNameController.text = user.displayName ?? '';
       _currentPhoneNumber = user.phoneNumber;
       _phoneController.text = _currentPhoneNumber ?? '';
-      _phoneVerified = _currentPhoneNumber != null;
+      // Ne pas marquer comme vérifié automatiquement
+      _phoneVerified = false;
 
       // Load additional data from Firestore
       final userData = await FirestoreService.getUserProfile();
@@ -46,6 +47,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           if (userData['phoneNumber'] != null) {
             _phoneController.text = userData['phoneNumber'];
             _currentPhoneNumber = userData['phoneNumber'];
+            // Marquer comme vérifié seulement si c'est dans Firestore
             _phoneVerified = true;
           }
         });
@@ -299,34 +301,34 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       label: 'Numéro de téléphone',
                       prefixIcon: Icon(Icons.phone),
                       keyboardType: TextInputType.phone,
-                      enabled: !_phoneVerified,
+                      // Permettre la modification même si vérifié
+                      enabled: true,
                     ),
                   ),
                   const SizedBox(width: 12),
-                  if (!_phoneVerified)
-                    ElevatedButton(
-                      onPressed: _isVerifyingPhone ? null : _verifyPhoneNumber,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
+                  ElevatedButton(
+                    onPressed: _isVerifyingPhone ? null : _verifyPhoneNumber,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _phoneVerified ? Colors.green : AppColors.primary,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
                       ),
-                      child: _isVerifyingPhone
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Text(
-                              'Vérifier',
-                              style: TextStyle(color: Colors.white),
-                            ),
                     ),
+                    child: _isVerifyingPhone
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            _phoneVerified ? 'Re-vérifier' : 'Vérifier',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                  ),
                 ],
               ),
 
