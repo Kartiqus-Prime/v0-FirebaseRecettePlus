@@ -1,42 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
 import 'firebase_options.dart';
 import 'core/constants/app_colors.dart';
 import 'features/auth/presentation/pages/welcome_page.dart';
 import 'features/home/presentation/pages/shorts_page.dart';
 import 'features/profile/presentation/pages/profile_page.dart' as lib;
 
+/// Version simplifiée sans App Check pour éviter les warnings
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialiser Firebase
+  // Initialiser Firebase sans App Check
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
-  // Configurer Firebase App Check (optionnel pour le développement)
-  await _configureAppCheck();
   
   runApp(const RecettePlusApp());
-}
-
-Future<void> _configureAppCheck() async {
-  try {
-    await FirebaseAppCheck.instance.activate(
-      // Pour Android en debug
-      androidProvider: AndroidProvider.debug,
-      // Pour iOS en debug  
-      appleProvider: AppleProvider.debug,
-      // Pour le web en debug
-      webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
-    );
-    print('✅ Firebase App Check configuré');
-  } catch (e) {
-    print('⚠️ Erreur lors de la configuration d\'App Check: $e');
-    // En développement, on peut ignorer cette erreur
-  }
 }
 
 class RecettePlusApp extends StatelessWidget {
@@ -272,7 +252,7 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const lib.ProfilePage(); // Utiliser la nouvelle page profil
+    return const lib.ProfilePage();
   }
 }
 
