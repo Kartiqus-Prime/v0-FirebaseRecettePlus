@@ -7,10 +7,19 @@ import 'features/auth/presentation/pages/welcome_page.dart';
 import 'features/profile/presentation/pages/profile_page.dart';
 import 'features/recipes/presentation/pages/recipes_page.dart';
 import 'features/products/presentation/pages/products_page.dart';
+// Ajouter l'import App Check
+import 'package:firebase_app_check/firebase_app_check.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // Dans la fonction main(), après Firebase.initializeApp(), ajouter :
+  await FirebaseAppCheck.instance.activate(
+    // Vous pouvez utiliser ReCaptchaV3Provider pour le web
+    // ou DeviceCheckProvider pour iOS
+    // ou PlayIntegrityProvider pour Android
+    androidProvider: AndroidProvider.debug, // Pour le développement
+  );
   runApp(const RecettePlusApp());
 }
 
