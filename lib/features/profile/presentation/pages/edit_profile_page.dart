@@ -207,12 +207,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.error_outline, color: AppColors.error, size: 20),
+                        const Icon(Icons.error_outline, color: AppColors.error, size: 20),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             _errorMessage!,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: AppColors.error,
                               fontSize: 14,
                             ),
@@ -235,12 +235,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.check_circle_outline, color: AppColors.success, size: 20),
+                        const Icon(Icons.check_circle_outline, color: AppColors.success, size: 20),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             _successMessage!,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: AppColors.success,
                               fontSize: 14,
                             ),

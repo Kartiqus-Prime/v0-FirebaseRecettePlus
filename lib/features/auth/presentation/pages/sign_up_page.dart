@@ -9,6 +9,7 @@ import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/social_button.dart';
 import 'sign_in_page.dart';
+import 'package:flutter/foundation.dart'; // Import kDebugMode
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -46,27 +47,51 @@ class _SignUpPageState extends State<SignUpPage> {
       _errorMessage = null;
     });
 
+    if (kDebugMode) {
+      print("SignUpPage: Tentative d'inscription par email/mot de passe...");
+      print("SignUpPage: Email: ${_emailController.text}");
+    }
+
     try {
       final UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
 
+      if (kDebugMode) {
+        print("SignUpPage: ✅ Inscription Firebase réussie pour ${userCredential.user?.email}");
+        print("SignUpPage: Mise à jour du nom d'affichage de l'utilisateur...");
+      }
       // Mettre à jour le nom d'affichage
       await userCredential.user?.updateDisplayName(_fullNameController.text.trim());
+      if (kDebugMode) {
+        print("SignUpPage: ✅ Nom d'affichage mis à jour.");
+        print("SignUpPage: Création du profil Firestore...");
+      }
 
       // Créer le profil dans Firestore
       await FirestoreService.createUserProfile(
         uid: userCredential.user!.uid,
         displayName: _fullNameController.text.trim(),
-        email: _emailController.text.trim(),
+        email: userCredential.user!.email.toString().trim(),
       );
+      if (kDebugMode) {
+        print("SignUpPage: ✅ Profil Firestore créé pour ${userCredential.user?.email}");
+      }
+      Navigator.pop(context); // Pop back after successful sign-up
       
     } on FirebaseAuthException catch (e) {
+      if (kDebugMode) {
+        print("SignUpPage: ❌ Erreur Firebase Auth: ${e.code} - ${e.message}");
+      }
       setState(() {
         _errorMessage = _getErrorMessage(e.code);
       });
     } catch (e) {
+      if (kDebugMode) {
+        print("SignUpPage: 💥 Erreur inattendue lors de l'inscription: $e");
+        print("SignUpPage: Stack Trace: ${StackTrace.current}");
+      }
       setState(() {
         _errorMessage = AppStrings.unknownError;
       });
@@ -83,15 +108,26 @@ class _SignUpPageState extends State<SignUpPage> {
       _errorMessage = null;
     });
 
+    if (kDebugMode) {
+      print("SignUpPage: Tentative d'inscription avec Google...");
+    }
+
     try {
       final UserCredential? userCredential = await GoogleSignInService.signInWithGoogle();
       
       if (userCredential == null) {
         // L'utilisateur a annulé la connexion
+        if (kDebugMode) {
+          print("SignUpPage: ❌ Inscription Google annulée par l'utilisateur.");
+        }
         setState(() {
           _isGoogleLoading = false;
         });
         return;
+      }
+      if (kDebugMode) {
+        print("SignUpPage: ✅ Connexion Google réussie: ${userCredential.user?.email}");
+        print("SignUpPage: Vérification/Création du profil Firestore pour Google Sign-In...");
       }
 
       // Créer le profil dans Firestore s'il n'existe pas
@@ -101,15 +137,25 @@ class _SignUpPageState extends State<SignUpPage> {
         photoURL: userCredential.user?.photoURL,
       );
 
-      // La redirection sera gérée automatiquement par le StreamBuilder dans main.dart
+      if (kDebugMode) {
+        print("SignUpPage: ✅ Profil Firestore créé/mis à jour pour Google Sign-In.");
+      }
+      Navigator.pop(context); // Pop back after successful Google sign-up
       
     } on FirebaseAuthException catch (e) {
+      if (kDebugMode) {
+        print("SignUpPage: ❌ Erreur Firebase Auth (Google): ${e.code} - ${e.message}");
+      }
       setState(() {
         _errorMessage = _getFirebaseErrorMessage(e.code);
       });
     } catch (e) {
+      if (kDebugMode) {
+        print("SignUpPage: 💥 Erreur inattendue lors de l'inscription avec Google: $e");
+        print("SignUpPage: Stack Trace: ${StackTrace.current}");
+      }
       setState(() {
-        _errorMessage = 'Erreur lors de l\'inscription avec Google. Vérifiez votre configuration.';
+        _errorMessage = "Erreur lors de l'inscription avec Google. Vérifiez votre configuration.";
       });
     } finally {
       setState(() {
@@ -121,13 +167,13 @@ class _SignUpPageState extends State<SignUpPage> {
   String _getErrorMessage(String code) {
     switch (code) {
       case 'email-already-in-use':
-        return 'Cette adresse e-mail est déjà utilisée.';
+        return "Cette adresse e-mail est déjà utilisée.";
       case 'invalid-email':
-        return 'Adresse e-mail invalide.';
+        return "Adresse e-mail invalide.";
       case 'operation-not-allowed':
-        return 'L\'inscription par e-mail n\'est pas activée.';
+        return "L'inscription par e-mail n'est pas activée.";
       case 'weak-password':
-        return 'Le mot de passe est trop faible.';
+        return "Le mot de passe est trop faible.";
       default:
         return AppStrings.signUpError;
     }
@@ -136,15 +182,15 @@ class _SignUpPageState extends State<SignUpPage> {
   String _getFirebaseErrorMessage(String code) {
     switch (code) {
       case 'account-exists-with-different-credential':
-        return 'Un compte existe déjà avec cette adresse e-mail mais avec un autre fournisseur.';
+        return "Un compte existe déjà avec cette adresse e-mail mais avec un autre fournisseur.";
       case 'invalid-credential':
-        return 'Les informations d\'identification sont invalides.';
+        return "Les informations d'identification sont invalides.";
       case 'operation-not-allowed':
-        return 'La connexion Google n\'est pas activée.';
+        return "La connexion Google n'est pas activée.";
       case 'user-disabled':
-        return 'Ce compte a été désactivé.';
+        return "Ce compte a été désactivé.";
       default:
-        return 'Erreur lors de l\'inscription avec Google.';
+        return "Erreur lors de l'inscription avec Google.";
     }
   }
 
@@ -169,7 +215,7 @@ class _SignUpPageState extends State<SignUpPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // En-tête
-                Column(
+                const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
@@ -180,9 +226,9 @@ class _SignUpPageState extends State<SignUpPage> {
                         color: AppColors.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Text(
-                      'Rejoignez-nous pour découvrir l\'univers des saveurs',
+                      "Rejoignez-nous pour découvrir l'univers des saveurs",
                       style: TextStyle(
                         fontSize: 16,
                         color: AppColors.textSecondary,
@@ -204,12 +250,12 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.error_outline, color: AppColors.error, size: 20),
+                        const Icon(Icons.error_outline, color: AppColors.error, size: 20),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             _errorMessage!,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: AppColors.error,
                               fontSize: 14,
                             ),
@@ -231,11 +277,11 @@ class _SignUpPageState extends State<SignUpPage> {
                 const SizedBox(height: 24),
 
                 // Séparateur
-                Row(
+                const Row(
                   children: [
-                    const Expanded(child: Divider(color: AppColors.border)),
+                    Expanded(child: Divider(color: AppColors.border)),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         AppStrings.or,
                         style: TextStyle(
@@ -244,7 +290,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         ),
                       ),
                     ),
-                    const Expanded(child: Divider(color: AppColors.border)),
+                    Expanded(child: Divider(color: AppColors.border)),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -297,7 +343,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    const Text(
                       AppStrings.alreadyHaveAccount,
                       style: TextStyle(
                         color: AppColors.textSecondary,
@@ -313,7 +359,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           ),
                         );
                       },
-                      child: Text(
+                      child: const Text(
                         AppStrings.signIn,
                         style: TextStyle(
                           color: AppColors.primary,

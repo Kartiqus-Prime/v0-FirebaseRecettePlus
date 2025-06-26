@@ -328,7 +328,7 @@ class _ProfilePageState extends State<ProfilePage> {
         Text(
           label,
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 12,
             color: AppColors.textSecondary,
           ),
@@ -368,7 +368,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 14,
           color: AppColors.textSecondary,
         ),
@@ -383,7 +383,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildDivider() {
-    return Divider(
+    return const Divider(
       height: 1,
       color: AppColors.border,
       indent: 60,
@@ -413,7 +413,7 @@ class _ProfilePageState extends State<ProfilePage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text(
+              child: const Text(
                 'Annuler',
                 style: TextStyle(
                   color: AppColors.textSecondary,

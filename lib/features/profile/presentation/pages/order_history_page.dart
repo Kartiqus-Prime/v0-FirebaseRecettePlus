@@ -151,7 +151,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
+          const Text(
             'Vous n\'avez pas encore passé de commande.\nDécouvrez nos produits !',
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -207,7 +207,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
           const SizedBox(height: 8),
           Text(
             dateStr,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
               color: AppColors.textSecondary,
             ),
@@ -215,9 +215,9 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
           const SizedBox(height: 12),
           
           // Articles de la commande
-          Text(
+          const Text(
             'Articles:',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
@@ -237,7 +237,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                 Expanded(
                   child: Text(
                     '${item['name']} (x${item['quantity']})',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
                       color: AppColors.textSecondary,
                     ),
@@ -245,7 +245,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                 ),
                 Text(
                   '${item['price']} FCFA',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
                     fontWeight: FontWeight.w500,
@@ -253,7 +253,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                 ),
               ],
             ),
-          )).toList(),
+          )),
           
           const SizedBox(height: 12),
           

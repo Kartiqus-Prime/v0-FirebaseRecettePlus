@@ -44,7 +44,7 @@ class WelcomePage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 32),
-                  Text(
+                  const Text(
                     AppStrings.welcome,
                     style: TextStyle(
                       fontSize: 24,
@@ -53,7 +53,7 @@ class WelcomePage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
+                  const Text(
                     AppStrings.appName,
                     style: TextStyle(
                       fontSize: 36,
@@ -62,7 +62,7 @@ class WelcomePage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
+                  const Text(
                     AppStrings.appSlogan,
                     style: TextStyle(
                       fontSize: 18,
