@@ -5,6 +5,7 @@ import '../../../../core/constants/app_strings.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../../shared/widgets/custom_button.dart';
+import '../../../../core/services/firestore_service.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -58,17 +59,26 @@ class _EditProfilePageState extends State<EditProfilePage> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        // Mettre à jour le nom d'affichage
+        // Mettre à jour Firebase Auth
         if (_displayNameController.text.trim() != user.displayName) {
           await user.updateDisplayName(_displayNameController.text.trim());
         }
 
-        // Mettre à jour l'email si différent
         if (_emailController.text.trim() != user.email) {
           await user.updateEmail(_emailController.text.trim());
         }
 
         await user.reload();
+
+        // Sauvegarder dans Firestore
+        await FirestoreService.createOrUpdateUserProfile(
+          displayName: _displayNameController.text.trim(),
+          email: _emailController.text.trim(),
+          phoneNumber: _phoneController.text.trim().isNotEmpty 
+              ? _phoneController.text.trim() 
+              : null,
+          photoURL: user.photoURL,
+        );
         
         setState(() {
           _successMessage = 'Profil mis à jour avec succès !';

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/widgets/custom_button.dart';
+import '../../../../core/services/firestore_service.dart';
 
 class PreferencesPage extends StatefulWidget {
   const PreferencesPage({super.key});
@@ -52,13 +53,26 @@ class _PreferencesPageState extends State<PreferencesPage> {
     _loadPreferences();
   }
 
-  void _loadPreferences() {
-    // TODO: Charger les préférences depuis Firestore
-    // Pour l'instant, on utilise des valeurs par défaut
-    setState(() {
-      _selectedCuisines = {'Cuisine française', 'Cuisine malienne'};
-      _selectedDifficulties = {'Facile', 'Moyen'};
-    });
+  Future<void> _loadPreferences() async {
+    try {
+      final preferences = await FirestoreService.getUserPreferences();
+      if (mounted) {
+        setState(() {
+          _selectedCuisines = preferences['cuisineTypes']!.cast<String>().toSet();
+          _selectedRestrictions = preferences['dietaryRestrictions']!.cast<String>().toSet();
+          _selectedDifficulties = preferences['difficultyLevels']!.cast<String>().toSet();
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erreur lors du chargement des préférences'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _savePreferences() async {
@@ -67,8 +81,11 @@ class _PreferencesPageState extends State<PreferencesPage> {
     });
 
     try {
-      // TODO: Sauvegarder dans Firestore
-      await Future.delayed(const Duration(seconds: 1)); // Simulation
+      await FirestoreService.saveUserPreferences(
+        cuisineTypes: _selectedCuisines,
+        dietaryRestrictions: _selectedRestrictions,
+        difficultyLevels: _selectedDifficulties,
+      );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -89,9 +106,11 @@ class _PreferencesPageState extends State<PreferencesPage> {
         );
       }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

@@ -5,9 +5,42 @@ import '../../../../shared/widgets/custom_button.dart';
 import 'edit_profile_page.dart';
 import 'preferences_page.dart';
 import 'order_history_page.dart';
+import '../../../../core/services/firestore_service.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  Map<String, int> _stats = {'favorites': 0, 'orders': 0};
+  bool _isLoadingStats = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStats();
+  }
+
+  Future<void> _loadStats() async {
+    try {
+      final stats = await FirestoreService.getProfileStats();
+      if (mounted) {
+        setState(() {
+          _stats = stats;
+          _isLoadingStats = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingStats = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -141,9 +174,16 @@ class ProfilePage extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildStatItem('Recettes\nFavorites', '12', Icons.favorite),
-                    _buildStatItem('Commandes', '5', Icons.shopping_bag),
-                    _buildStatItem('Points', '250', Icons.star),
+                    _buildStatItem(
+                      'Recettes\nFavorites', 
+                      _isLoadingStats ? '...' : '${_stats['favorites']}', 
+                      Icons.favorite
+                    ),
+                    _buildStatItem(
+                      'Commandes', 
+                      _isLoadingStats ? '...' : '${_stats['orders']}', 
+                      Icons.shopping_bag
+                    ),
                   ],
                 ),
               ),
@@ -169,12 +209,15 @@ class ProfilePage extends StatelessWidget {
                       'Modifier le profil',
                       'Informations personnelles',
                       Icons.edit,
-                      () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const EditProfilePage(),
-                        ),
-                      ),
+                      () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const EditProfilePage(),
+                          ),
+                        );
+                        _refreshStats();
+                      },
                     ),
                     _buildDivider(),
                     _buildMenuItem(
@@ -401,5 +444,9 @@ class ProfilePage extends StatelessWidget {
         );
       },
     );
+  }
+
+  void _refreshStats() {
+    _loadStats();
   }
 }

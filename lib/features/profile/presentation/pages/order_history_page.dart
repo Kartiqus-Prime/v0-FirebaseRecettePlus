@@ -1,36 +1,76 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/services/firestore_service.dart';
+import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class OrderHistoryPage extends StatelessWidget {
+class OrderHistoryPage extends StatefulWidget {
   const OrderHistoryPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Données d'exemple pour l'historique des commandes
-    final orders = [
-      {
-        'id': '#CMD001',
-        'date': '15 Déc 2024',
-        'total': '25 000 FCFA',
-        'status': 'Livré',
-        'items': ['Épices berbères', 'Huile d\'olive', 'Riz basmati'],
-      },
-      {
-        'id': '#CMD002',
-        'date': '10 Déc 2024',
-        'total': '18 500 FCFA',
-        'status': 'En cours',
-        'items': ['Fonio', 'Piment rouge', 'Gingembre'],
-      },
-      {
-        'id': '#CMD003',
-        'date': '5 Déc 2024',
-        'total': '32 000 FCFA',
-        'status': 'Livré',
-        'items': ['Kit tajine', 'Couscous', 'Légumes secs'],
-      },
-    ];
+  State<OrderHistoryPage> createState() => _OrderHistoryPageState();
+}
 
+class _OrderHistoryPageState extends State<OrderHistoryPage> {
+  List<Map<String, dynamic>> _orders = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOrders();
+  }
+
+  Future<void> _loadOrders() async {
+    try {
+      final orders = await FirestoreService.getUserOrders();
+      if (mounted) {
+        setState(() {
+          _orders = orders;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erreur lors du chargement des commandes'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _createSampleOrder() async {
+    try {
+      await FirestoreService.createSampleOrder();
+      _loadOrders(); // Recharger la liste
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Commande d\'exemple créée !'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erreur lors de la création de la commande'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -48,16 +88,39 @@ class OrderHistoryPage extends StatelessWidget {
           ),
         ),
       ),
-      body: orders.isEmpty
-          ? _buildEmptyState()
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: orders.length,
-              itemBuilder: (context, index) {
-                final order = orders[index];
-                return _buildOrderCard(order);
-              },
-            ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          : _orders.isEmpty
+              ? _buildEmptyState()
+              : Column(
+                  children: [
+                    // Bouton pour créer une commande d'exemple (pour les tests)
+                    if (_orders.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: ElevatedButton(
+                          onPressed: _createSampleOrder,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                          ),
+                          child: const Text(
+                            'Créer une commande d\'exemple',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    Expanded(
+                      child: ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: _orders.length,
+                        itemBuilder: (context, index) {
+                          final order = _orders[index];
+                          return _buildOrderCard(order);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
     );
   }
 
@@ -102,6 +165,13 @@ class OrderHistoryPage extends StatelessWidget {
   }
 
   Widget _buildOrderCard(Map<String, dynamic> order) {
+    final createdAt = order['createdAt'] as Timestamp?;
+    final dateStr = createdAt != null 
+        ? DateFormat('dd MMM yyyy', 'fr_FR').format(createdAt.toDate())
+        : 'Date inconnue';
+    
+    final items = List<Map<String, dynamic>>.from(order['items'] ?? []);
+    
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -124,19 +194,19 @@ class OrderHistoryPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                order['id'],
+                order['orderId'] ?? '#CMD000',
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
                 ),
               ),
-              _buildStatusBadge(order['status']),
+              _buildStatusBadge(order['status'] ?? 'Inconnu'),
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            order['date'],
+            dateStr,
             style: TextStyle(
               fontSize: 14,
               color: AppColors.textSecondary,
@@ -154,7 +224,7 @@ class OrderHistoryPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          ...order['items'].map<Widget>((item) => Padding(
+          ...items.map<Widget>((item) => Padding(
             padding: const EdgeInsets.only(left: 8, bottom: 2),
             child: Row(
               children: [
@@ -164,11 +234,21 @@ class OrderHistoryPage extends StatelessWidget {
                   color: AppColors.textSecondary,
                 ),
                 const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '${item['name']} (x${item['quantity']})',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ),
                 Text(
-                  item,
+                  '${item['price']} FCFA',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -182,7 +262,7 @@ class OrderHistoryPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Total: ${order['total']}',
+                'Total: ${order['total']} ${order['currency'] ?? 'FCFA'}',
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -193,7 +273,7 @@ class OrderHistoryPage extends StatelessWidget {
                 children: [
                   TextButton(
                     onPressed: () {
-                      // TODO: Voir les détails
+                      _showOrderDetails(order);
                     },
                     child: const Text(
                       'Détails',
@@ -260,6 +340,38 @@ class OrderHistoryPage extends StatelessWidget {
           fontWeight: FontWeight.w600,
           color: textColor,
         ),
+      ),
+    );
+  }
+
+  void _showOrderDetails(Map<String, dynamic> order) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Commande ${order['orderId']}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Statut: ${order['status']}'),
+            const SizedBox(height: 8),
+            Text('Total: ${order['total']} ${order['currency'] ?? 'FCFA'}'),
+            const SizedBox(height: 16),
+            const Text('Articles:', style: TextStyle(fontWeight: FontWeight.bold)),
+            ...List<Map<String, dynamic>>.from(order['items'] ?? []).map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(left: 16, top: 4),
+                child: Text('• ${item['name']} (x${item['quantity']}) - ${item['price']} FCFA'),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Fermer'),
+          ),
+        ],
       ),
     );
   }
