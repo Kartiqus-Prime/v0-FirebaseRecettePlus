@@ -17,7 +17,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final _displayNameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _verificationCodeController = TextEditingController();
-  
+
   bool _isLoading = false;
   bool _isVerifyingPhone = false;
   bool _phoneVerified = false;
@@ -37,7 +37,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       _currentPhoneNumber = user.phoneNumber;
       _phoneController.text = _currentPhoneNumber ?? '';
       _phoneVerified = _currentPhoneNumber != null;
-      
+
       // Load additional data from Firestore
       final userData = await FirestoreService.getUserProfile();
       if (userData != null && mounted) {
@@ -95,9 +95,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
       setState(() {
         _isVerifyingPhone = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erreur: $e')));
     }
   }
 
@@ -110,7 +110,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Un code de vérification a été envoyé au ${_phoneController.text}'),
+            Text(
+              'Un code de vérification a été envoyé au ${_phoneController.text}',
+            ),
             const SizedBox(height: 16),
             TextField(
               controller: _verificationCodeController,
@@ -131,10 +133,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             },
             child: const Text('Annuler'),
           ),
-          ElevatedButton(
-            onPressed: _verifyCode,
-            child: const Text('Vérifier'),
-          ),
+          ElevatedButton(onPressed: _verifyCode, child: const Text('Vérifier')),
         ],
       ),
     );
@@ -150,13 +149,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
         verificationId: _verificationId!,
         smsCode: _verificationCodeController.text,
       );
-      
+
       await _linkPhoneCredential(credential);
       Navigator.of(context).pop(); // Close dialog
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Code invalide: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Code invalide: $e')));
     }
   }
 
@@ -170,13 +169,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
           _currentPhoneNumber = _phoneController.text;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Numéro de téléphone vérifié avec succès!')),
+          const SnackBar(
+            content: Text('Numéro de téléphone vérifié avec succès!'),
+          ),
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur lors de la liaison: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erreur lors de la liaison: $e')));
     }
   }
 
@@ -192,7 +193,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       if (user != null) {
         // Update display name in Firebase Auth
         await user.updateDisplayName(_displayNameController.text);
-        
+
         // Update profile in Firestore
         await FirestoreService.updateUserProfile(
           uid: user.uid,
@@ -203,7 +204,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Profil mis à jour avec succès!')),
         );
-        
+
         Navigator.of(context).pop();
       }
     } catch (e) {
@@ -243,10 +244,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: AppColors.primary.withOpacity(0.1),
-                        border: Border.all(
-                          color: AppColors.primary,
-                          width: 3,
-                        ),
+                        border: Border.all(color: AppColors.primary, width: 3),
                       ),
                       child: const Icon(
                         Icons.person,
@@ -274,14 +272,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // Nom d'affichage
               CustomTextField(
                 controller: _displayNameController,
-                labelText: 'Nom d\'affichage',
-                prefixIcon: Icons.person,
+                label: 'Nom d\'affichage',
+                prefixIcon: Icon(Icons.person),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Veuillez entrer votre nom';
@@ -289,17 +287,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   return null;
                 },
               ),
-              
+
               const SizedBox(height: 20),
-              
+
               // Numéro de téléphone
               Row(
                 children: [
                   Expanded(
                     child: CustomTextField(
                       controller: _phoneController,
-                      labelText: 'Numéro de téléphone',
-                      prefixIcon: Icons.phone,
+                      label: 'Numéro de téléphone',
+                      prefixIcon: Icon(Icons.phone),
                       keyboardType: TextInputType.phone,
                       enabled: !_phoneVerified,
                       suffixIcon: _phoneVerified
@@ -334,13 +332,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ),
                 ],
               ),
-              
+
               if (_phoneVerified && _currentPhoneNumber != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Row(
                     children: [
-                      const Icon(Icons.check_circle, color: Colors.green, size: 16),
+                      const Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                        size: 16,
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         'Numéro vérifié: $_currentPhoneNumber',
@@ -352,9 +354,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ],
                   ),
                 ),
-              
+
               const SizedBox(height: 40),
-              
+
               // Bouton de sauvegarde
               CustomButton(
                 text: 'Sauvegarder',
