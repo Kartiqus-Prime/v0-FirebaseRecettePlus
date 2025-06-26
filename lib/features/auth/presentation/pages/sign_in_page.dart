@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../core/services/firestore_service.dart';
+import 'package:recetteplus/core/services/firestore_service.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({Key? key}) : super(key: key);
@@ -17,7 +17,8 @@ class _SignInPageState extends State<SignInPage> {
 
   Future<void> _signInWithGoogle() async {
     try {
-      final GoogleSignInAccount? googleSignInAccount = await _googleSignIn.signIn();
+      final GoogleSignInAccount? googleSignInAccount =
+          await _googleSignIn.signIn();
       if (googleSignInAccount != null) {
         final GoogleSignInAuthentication googleSignInAuthentication =
             await googleSignInAccount.authentication;
@@ -27,7 +28,8 @@ class _SignInPageState extends State<SignInPage> {
           idToken: googleSignInAuthentication.idToken,
         );
 
-        final UserCredential userCredential = await _auth.signInWithCredential(credential);
+        final UserCredential userCredential =
+            await _auth.signInWithCredential(credential);
 
         // Vérifier si le profil utilisateur existe, sinon le créer
         final userDoc = await FirebaseFirestore.instance
@@ -67,4 +69,3 @@ class _SignInPageState extends State<SignInPage> {
     );
   }
 }
-\`\`\`</merged_code>
