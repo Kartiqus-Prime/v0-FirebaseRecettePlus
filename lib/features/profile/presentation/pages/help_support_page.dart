@@ -344,7 +344,7 @@ class HelpSupportPage extends StatelessWidget {
     
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (BuildContext dialogContext) => AlertDialog(
         title: const Text('Signaler un bug'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -363,12 +363,12 @@ class HelpSupportPage extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: const Text('Annuler'),
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.of(dialogContext).pop();
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Rapport envoyé. Merci !')),
               );

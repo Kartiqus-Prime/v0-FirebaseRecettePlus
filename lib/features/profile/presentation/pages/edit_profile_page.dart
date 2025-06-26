@@ -300,9 +300,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       prefixIcon: Icon(Icons.phone),
                       keyboardType: TextInputType.phone,
                       enabled: !_phoneVerified,
-                      suffixIcon: _phoneVerified
-                          ? const Icon(Icons.verified, color: Colors.green)
-                          : null,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -333,23 +330,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ],
               ),
 
-              if (_phoneVerified && _currentPhoneNumber != null)
+              if (_phoneVerified)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Row(
                     children: [
-                      const Icon(
-                        Icons.check_circle,
-                        color: Colors.green,
-                        size: 16,
-                      ),
+                      const Icon(Icons.verified, color: Colors.green, size: 16),
                       const SizedBox(width: 8),
-                      Text(
-                        'Numéro vérifié: $_currentPhoneNumber',
-                        style: const TextStyle(
-                          color: Colors.green,
-                          fontSize: 12,
-                        ),
+                      const Text(
+                        'Numéro vérifié',
+                        style: TextStyle(color: Colors.green, fontSize: 12),
                       ),
                     ],
                   ),
