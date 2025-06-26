@@ -36,8 +36,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       _displayNameController.text = user.displayName ?? '';
       _currentPhoneNumber = user.phoneNumber;
       _phoneController.text = _currentPhoneNumber ?? '';
-      // Ne pas marquer comme vérifié automatiquement
-      _phoneVerified = false;
+      _phoneVerified = _currentPhoneNumber != null;
 
       // Load additional data from Firestore
       final userData = await FirestoreService.getUserProfile();
@@ -47,7 +46,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
           if (userData['phoneNumber'] != null) {
             _phoneController.text = userData['phoneNumber'];
             _currentPhoneNumber = userData['phoneNumber'];
-            // Marquer comme vérifié seulement si c'est dans Firestore
             _phoneVerified = true;
           }
         });
@@ -61,6 +59,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
         const SnackBar(content: Text('Veuillez entrer un numéro de téléphone')),
       );
       return;
+    }
+
+    // Si le numéro a changé, marquer comme non vérifié
+    if (_phoneController.text != _currentPhoneNumber) {
+      setState(() {
+        _phoneVerified = false;
+      });
     }
 
     setState(() {
@@ -97,9 +102,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
       setState(() {
         _isVerifyingPhone = false;
       });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Erreur: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur: $e')),
+      );
     }
   }
 
@@ -293,59 +298,79 @@ class _EditProfilePageState extends State<EditProfilePage> {
               const SizedBox(height: 20),
 
               // Numéro de téléphone
-              Row(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: CustomTextField(
-                      controller: _phoneController,
-                      label: 'Numéro de téléphone',
-                      prefixIcon: Icon(Icons.phone),
-                      keyboardType: TextInputType.phone,
-                      // Permettre la modification même si vérifié
-                      enabled: true,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  ElevatedButton(
-                    onPressed: _isVerifyingPhone ? null : _verifyPhoneNumber,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _phoneVerified ? Colors.green : AppColors.primary,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                    ),
-                    child: _isVerifyingPhone
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : Text(
-                            _phoneVerified ? 'Re-vérifier' : 'Vérifier',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                  ),
-                ],
-              ),
-
-              if (_phoneVerified)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Row(
+                  Row(
                     children: [
-                      const Icon(Icons.verified, color: Colors.green, size: 16),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Numéro vérifié',
-                        style: TextStyle(color: Colors.green, fontSize: 12),
+                      Expanded(
+                        child: CustomTextField(
+                          controller: _phoneController,
+                          label: 'Numéro de téléphone',
+                          prefixIcon: Icon(Icons.phone),
+                          keyboardType: TextInputType.phone,
+                          // Toujours permettre la modification
+                          enabled: true,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      ElevatedButton(
+                        onPressed: _isVerifyingPhone ? null : _verifyPhoneNumber,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                        ),
+                        child: _isVerifyingPhone
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Text(
+                                _phoneVerified ? 'Re-vérifier' : 'Vérifier',
+                                style: const TextStyle(color: Colors.white),
+                              ),
                       ),
                     ],
                   ),
-                ),
+                  
+                  if (_phoneVerified && _currentPhoneNumber != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.verified, color: Colors.green, size: 16),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Numéro vérifié: $_currentPhoneNumber',
+                            style: const TextStyle(color: Colors.green, fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                  
+                  if (!_phoneVerified && _phoneController.text.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.warning, color: Colors.orange, size: 16),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Numéro non vérifié',
+                            style: TextStyle(color: Colors.orange, fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
 
               const SizedBox(height: 40),
 
