@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/constants/app_colors.dart';
+import 'edit_profile_page.dart';
+import 'favorites_page.dart';
+import 'history_page.dart';
+import 'settings_page.dart';
+import 'help_support_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -97,9 +102,11 @@ class ProfilePage extends StatelessWidget {
                 title: 'Modifier le profil',
                 subtitle: 'Changez vos informations personnelles',
                 onTap: () {
-                  // TODO: Naviguer vers la page d'édition du profil
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Fonctionnalité à venir')),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EditProfilePage(),
+                    ),
                   );
                 },
               ),
@@ -110,8 +117,11 @@ class ProfilePage extends StatelessWidget {
                 title: 'Mes favoris',
                 subtitle: 'Vos recettes préférées',
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Fonctionnalité à venir')),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const FavoritesPage(),
+                    ),
                   );
                 },
               ),
@@ -122,8 +132,11 @@ class ProfilePage extends StatelessWidget {
                 title: 'Historique',
                 subtitle: 'Vos recettes récemment consultées',
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Fonctionnalité à venir')),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HistoryPage(),
+                    ),
                   );
                 },
               ),
@@ -134,8 +147,11 @@ class ProfilePage extends StatelessWidget {
                 title: 'Paramètres',
                 subtitle: 'Préférences et configuration',
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Fonctionnalité à venir')),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SettingsPage(),
+                    ),
                   );
                 },
               ),
@@ -146,8 +162,11 @@ class ProfilePage extends StatelessWidget {
                 title: 'Aide et support',
                 subtitle: 'Obtenez de l\'aide',
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Fonctionnalité à venir')),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HelpSupportPage(),
+                    ),
                   );
                 },
               ),
