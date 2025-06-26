@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../shared/widgets/custom_button.dart';
@@ -17,10 +18,13 @@ class WelcomePage extends StatelessWidget {
           padding: const EdgeInsets.all(24.0),
           child: Column(
             children: [
-              const Spacer(),
-              // Logo et titre
+              // Spacer pour centrer le contenu
+              const Spacer(flex: 2),
+
+              // Section Logo et illustration
               Column(
                 children: [
+                  // Logo principal
                   Container(
                     width: 120,
                     height: 120,
@@ -36,14 +40,42 @@ class WelcomePage extends StatelessWidget {
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(24),
-                      child: Image.network(
-                        'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo-e6dKsJSWOGo8cJEfHuxiUdTsJzLTPt.png',
+                      child: Image.asset(
+                        'assets/images/logo.png',
                         fit: BoxFit.cover,
                       ),
                     ),
                   ),
+
+                  const SizedBox(height: 24),
+
+                  // Illustration food
+                  Container(
+                    width: 200,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withOpacity(0.1),
+                          blurRadius: 30,
+                          offset: const Offset(0, 15),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: SvgPicture.asset(
+                        'assets/images/food-illustration.svg',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+
                   const SizedBox(height: 32),
-                  Text(
+
+                  // Textes de bienvenue
+                  const Text(
                     AppStrings.welcome,
                     style: TextStyle(
                       fontSize: 24,
@@ -52,7 +84,7 @@ class WelcomePage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
+                  const Text(
                     AppStrings.appName,
                     style: TextStyle(
                       fontSize: 36,
@@ -61,17 +93,21 @@ class WelcomePage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
+                  const Text(
                     AppStrings.appSlogan,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w400,
                       color: AppColors.secondary,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
-              const Spacer(),
+
+              // Spacer pour pousser les boutons vers le bas
+              const Spacer(flex: 3),
+
               // Boutons d'action
               Column(
                 children: [
@@ -101,6 +137,8 @@ class WelcomePage extends StatelessWidget {
                   ),
                 ],
               ),
+
+              // Espace en bas
               const SizedBox(height: 32),
             ],
           ),
