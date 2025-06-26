@@ -213,24 +213,36 @@ class HelpSupportPage extends StatelessWidget {
             icon: Icons.video_library,
             title: 'Tutoriels vidéo',
             subtitle: 'Apprenez à utiliser l\'application',
+            onTap: () {
+              // Fonctionnalité à venir
+            },
           ),
           _buildDivider(),
           _buildResourceTile(
             icon: Icons.article,
             title: 'Guide d\'utilisation',
             subtitle: 'Documentation complète',
+            onTap: () {
+              // Fonctionnalité à venir
+            },
           ),
           _buildDivider(),
           _buildResourceTile(
             icon: Icons.update,
             title: 'Nouveautés',
             subtitle: 'Découvrez les dernières fonctionnalités',
+            onTap: () {
+              // Fonctionnalité à venir
+            },
           ),
           _buildDivider(),
           _buildResourceTile(
             icon: Icons.feedback,
             title: 'Donner votre avis',
             subtitle: 'Notez l\'application sur le store',
+            onTap: () {
+              // Fonctionnalité à venir
+            },
           ),
         ],
       ),
@@ -286,6 +298,7 @@ class HelpSupportPage extends StatelessWidget {
     required IconData icon,
     required String title,
     required String subtitle,
+    VoidCallback? onTap,
   }) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -322,11 +335,7 @@ class HelpSupportPage extends StatelessWidget {
         size: 16,
         color: AppColors.textSecondary,
       ),
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Fonctionnalité à venir')),
-        );
-      },
+      onTap: onTap,
     );
   }
 
