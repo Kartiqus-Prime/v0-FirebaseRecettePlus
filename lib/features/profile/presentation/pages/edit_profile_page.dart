@@ -60,11 +60,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
     
     // Si le numéro ne commence pas par +, ajouter le code pays par défaut
     if (!cleaned.startsWith('+')) {
-      // Supposons que c'est un numéro français si pas de code pays
+      // Pour le Mali, si le numéro commence par 0, le remplacer par +223
       if (cleaned.startsWith('0')) {
-        cleaned = '+33${cleaned.substring(1)}';
+        cleaned = '+223${cleaned.substring(1)}';
+      } else if (cleaned.length == 8) {
+        // Numéro malien standard (8 chiffres)
+        cleaned = '+223$cleaned';
       } else {
-        cleaned = '+33$cleaned';
+        // Par défaut, ajouter +223 pour le Mali
+        cleaned = '+223$cleaned';
       }
     }
     
@@ -89,6 +93,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
       setState(() {
         _phoneVerified = false;
       });
+    }
+
+    // Validation spécifique pour le Mali
+    if (formattedPhone.startsWith('+223')) {
+      String number = formattedPhone.substring(4);
+      if (number.length != 8) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Numéro malien invalide. Format: +223XXXXXXXX (8 chiffres après +223)')),
+        );
+        setState(() {
+          _isVerifyingPhone = false;
+        });
+        return;
+      }
     }
 
     setState(() {
@@ -391,7 +409,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
-                      'Format: +33123456789 (avec indicatif pays)',
+                      'Format Mali: +22312345678 ou 12345678',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey[600],
