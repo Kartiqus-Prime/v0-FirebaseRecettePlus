@@ -59,15 +59,6 @@ class ShortsPage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  IconButton(
-                    onPressed: () async {
-                      await FirebaseAuth.instance.signOut();
-                    },
-                    icon: const Icon(
-                      Icons.logout,
-                      color: Colors.white,
-                    ),
-                  ),
                 ],
               ),
             ),

@@ -5,6 +5,7 @@ import 'firebase_options.dart';
 import 'core/constants/app_colors.dart';
 import 'features/auth/presentation/pages/welcome_page.dart';
 import 'features/home/presentation/pages/shorts_page.dart';
+import 'features/profile/presentation/pages/profile_page.dart' as lib;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -247,73 +248,6 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-    
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profil'),
-        backgroundColor: AppColors.background,
-        foregroundColor: AppColors.textPrimary,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-            },
-          ),
-        ],
-      ),
-      backgroundColor: AppColors.background,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              radius: 50,
-              backgroundColor: AppColors.primary,
-              backgroundImage: user?.photoURL != null 
-                  ? NetworkImage(user!.photoURL!) 
-                  : null,
-              child: user?.photoURL == null 
-                  ? Text(
-                      user?.displayName?.substring(0, 1).toUpperCase() ?? 
-                      user?.email?.substring(0, 1).toUpperCase() ?? 'U',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              user?.displayName ?? 'Utilisateur',
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              user?.email ?? '',
-              style: const TextStyle(
-                fontSize: 16,
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 32),
-            const Text(
-              'Bienvenue sur Recette+',
-              style: TextStyle(
-                fontSize: 18,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    return const lib.ProfilePage(); // Utiliser la nouvelle page profil
   }
 }
