@@ -7,7 +7,7 @@ Ce document détaille les informations nécessaires pour développer une applica
 ## Configuration Firebase
 
 ### Informations du projet Firebase
-```
+\`\`\`
 Project ID: recette-plus-app
 API Key: AIzaSyDyTa4_ltMe9y7nS0OHFK5Ata8C7ZuV8Bc
 Auth Domain: recette-plus-app.firebaseapp.com
@@ -15,10 +15,10 @@ Storage Bucket: recette-plus-app.firebasestorage.app
 Messaging Sender ID: 361640124056
 App ID: 1:361640124056:web:5e7800c593d5ef089c7aed
 Measurement ID: G-GZPWYFVQ9L
-```
+\`\`\`
 
 ### Configuration Android (google-services.json)
-```json
+\`\`\`json
 {
   "project_info": {
     "project_number": "361640124056",
@@ -58,10 +58,10 @@ Measurement ID: G-GZPWYFVQ9L
   ],
   "configuration_version": "1"
 }
-```
+\`\`\`
 
 ### Configuration iOS (GoogleService-Info.plist)
-```xml
+\`\`\`xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -96,7 +96,7 @@ Measurement ID: G-GZPWYFVQ9L
 	<string>1:361640124056:ios:YOUR_IOS_APP_ID</string>
 </dict>
 </plist>
-```
+\`\`\`
 
 ## Architecture de l'Application
 
@@ -131,7 +131,7 @@ Measurement ID: G-GZPWYFVQ9L
 
 ## Dépendances Flutter recommandées
 
-```yaml
+\`\`\`yaml
 dependencies:
   flutter:
     sdk: flutter
@@ -174,11 +174,11 @@ dev_dependencies:
     sdk: flutter
   build_runner: ^2.4.7
   json_serializable: ^6.7.1
-```
+\`\`\`
 
 ## Structure des dossiers recommandée
 
-```
+\`\`\`
 lib/
 ├── main.dart
 ├── app.dart
@@ -213,12 +213,12 @@ lib/
 │   ├── themes/
 │   └── extensions/
 └── firebase_options.dart
-```
+\`\`\`
 
 ## Modèles de données
 
 ### Utilisateur
-```dart
+\`\`\`dart
 class UserProfile {
   final String id;
   final String email;
@@ -256,10 +256,10 @@ class UserPreferences {
 }
 
 enum UserRole { user, admin }
-```
+\`\`\`
 
 ### Recette
-```dart
+\`\`\`dart
 class Recipe {
   final String id;
   final String title;
@@ -293,10 +293,10 @@ class Recipe {
     required this.updatedAt,
   });
 }
-```
+\`\`\`
 
 ### Produit
-```dart
+\`\`\`dart
 class Product {
   final String id;
   final String name;
@@ -322,12 +322,12 @@ class Product {
     required this.updatedAt,
   });
 }
-```
+\`\`\`
 
 ## Configuration Firebase Firestore
 
 ### Règles de sécurité
-```javascript
+\`\`\`javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -369,12 +369,12 @@ service cloud.firestore {
     }
   }
 }
-```
+\`\`\`
 
 ## Authentification par téléphone malien
 
 ### Configuration
-```dart
+\`\`\`dart
 // Numéros maliens acceptés: +223 suivi de 8 chiffres commençant par 6, 7, 8 ou 9
 bool isValidMalianPhoneNumber(String phoneNumber) {
   final regex = RegExp(r'^\+223[6-9]\d{7}$');
@@ -399,12 +399,12 @@ String formatMalianPhoneNumber(String input) {
   }
   return limited;
 }
-```
+\`\`\`
 
 ## Thème et couleurs
 
 ### Palette de couleurs
-```dart
+\`\`\`dart
 class AppColors {
   static const Color primary = Color(0xFFF97316); // Orange-500
   static const Color primaryDark = Color(0xFFEA580C); // Orange-600
@@ -415,7 +415,7 @@ class AppColors {
   static const Color textPrimary = Color(0xFF111827); // Gray-900
   static const Color textSecondary = Color(0xFF6B7280); // Gray-500
 }
-```
+\`\`\`
 
 ## Spécificités Mali
 

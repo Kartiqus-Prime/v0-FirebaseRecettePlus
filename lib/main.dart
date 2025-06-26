@@ -4,6 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 import 'core/constants/app_colors.dart';
 import 'features/auth/presentation/pages/welcome_page.dart';
+import 'features/profile/presentation/pages/profile_page.dart';
+import 'features/recipes/presentation/pages/recipes_page.dart';
+import 'features/products/presentation/pages/products_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -170,21 +173,6 @@ class ShortsPage extends StatelessWidget {
         title: const Text('Shorts'),
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textPrimary,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              if (context.mounted) {
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  '/welcome',
-                  (route) => false,
-                );
-              }
-            },
-          ),
-        ],
       ),
       backgroundColor: AppColors.background,
       body: const Center(
@@ -204,120 +192,6 @@ class ShortsPage extends StatelessWidget {
             SizedBox(height: 8),
             Text(
               'Découvrez nos vidéos courtes de recettes',
-              style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class RecipesPage extends StatelessWidget {
-  const RecipesPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Recettes'),
-        backgroundColor: AppColors.background,
-        foregroundColor: AppColors.textPrimary,
-      ),
-      backgroundColor: AppColors.background,
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.restaurant_menu, size: 80, color: AppColors.primary),
-            SizedBox(height: 16),
-            Text(
-              'Page des Recettes',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Découvrez nos délicieuses recettes',
-              style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ProductsPage extends StatelessWidget {
-  const ProductsPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Produits'),
-        backgroundColor: AppColors.background,
-        foregroundColor: AppColors.textPrimary,
-      ),
-      backgroundColor: AppColors.background,
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.shopping_bag, size: 80, color: AppColors.primary),
-            SizedBox(height: 16),
-            Text(
-              'Page des Produits',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Découvrez nos produits culinaires',
-              style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profil'),
-        backgroundColor: AppColors.background,
-        foregroundColor: AppColors.textPrimary,
-      ),
-      backgroundColor: AppColors.background,
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.person, size: 80, color: AppColors.primary),
-            SizedBox(height: 16),
-            Text(
-              'Page du Profil',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Gérez votre profil et vos préférences',
               style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
             ),
           ],
