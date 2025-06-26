@@ -8,6 +8,7 @@ import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/social_button.dart';
 import 'sign_up_page.dart';
+import 'forgot_password_page.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -74,6 +75,9 @@ class _SignInPageState extends State<SignInPage> {
     });
 
     try {
+      // Forcer la déconnexion pour permettre la sélection de compte
+      await _googleSignIn.signOut();
+
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
         setState(() {
@@ -236,7 +240,12 @@ class _SignInPageState extends State<SignInPage> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      // TODO: Implémenter la réinitialisation du mot de passe
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ForgotPasswordPage(),
+                        ),
+                      );
                     },
                     child: Text(
                       AppStrings.forgotPassword,
