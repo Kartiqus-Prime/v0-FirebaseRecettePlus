@@ -75,8 +75,9 @@ class _SignInPageState extends State<SignInPage> {
     });
 
     try {
-      final UserCredential? userCredential = await GoogleSignInService.signInWithGoogle();
-      
+      final UserCredential? userCredential =
+          await GoogleSignInService.signInWithGoogle();
+
       if (userCredential == null) {
         setState(() {
           _isGoogleLoading = false;
@@ -85,13 +86,17 @@ class _SignInPageState extends State<SignInPage> {
       }
 
       // Succès - la redirection sera gérée par le StreamBuilder
+<<<<<<< HEAD
       
+=======
+>>>>>>> d4929db (maj)
     } on FirebaseAuthException catch (e) {
       setState(() {
         _errorMessage = _getFirebaseErrorMessage(e.code);
       });
     } catch (e) {
       String errorMsg = 'Erreur de connexion Google';
+<<<<<<< HEAD
       
       if (e.toString().contains('ApiException: 10')) {
         errorMsg = 'Configuration Google Sign-In incorrecte.\nVérifiez le SHA-1 dans Firebase Console.';
@@ -101,6 +106,18 @@ class _SignInPageState extends State<SignInPage> {
         _errorMessage = errorMsg;
       });
       
+=======
+
+      if (e.toString().contains('ApiException: 10')) {
+        errorMsg =
+            'Configuration Google Sign-In incorrecte.\nVérifiez le SHA-1 dans Firebase Console.';
+      }
+
+      setState(() {
+        _errorMessage = errorMsg;
+      });
+
+>>>>>>> d4929db (maj)
       // Afficher une boîte de dialogue avec les instructions
       if (mounted && e.toString().contains('ApiException: 10')) {
         _showConfigurationDialog();
@@ -254,12 +271,18 @@ class _SignInPageState extends State<SignInPage> {
                     decoration: BoxDecoration(
                       color: AppColors.error.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.error.withOpacity(0.3)),
+                      border: Border.all(
+                        color: AppColors.error.withOpacity(0.3),
+                      ),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.error_outline, color: AppColors.error, size: 20),
+                        Icon(
+                          Icons.error_outline,
+                          color: AppColors.error,
+                          size: 20,
+                        ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
@@ -310,7 +333,10 @@ class _SignInPageState extends State<SignInPage> {
                   controller: _emailController,
                   validator: Validators.validateEmail,
                   keyboardType: TextInputType.emailAddress,
-                  prefixIcon: const Icon(Icons.email_outlined, color: AppColors.textSecondary),
+                  prefixIcon: const Icon(
+                    Icons.email_outlined,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: 20),
 
@@ -319,7 +345,10 @@ class _SignInPageState extends State<SignInPage> {
                   controller: _passwordController,
                   validator: Validators.validatePassword,
                   isPassword: true,
-                  prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textSecondary),
+                  prefixIcon: const Icon(
+                    Icons.lock_outline,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: 16),
 
